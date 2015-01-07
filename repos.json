@@ -1,0 +1,10 @@
+{
+  "qemu": {
+    "name": "QEMU",
+    "email": "qemu@lists.prplfoundation.org"
+  },
+  "real-test": {
+    "name": "Real Test",
+    "email": "wwahammy@gmail.com"
+  }
+}
