@@ -8,8 +8,11 @@ import urlparse
 import json
 import hashlib
 import hmac
+import email
 from email.parser import Parser
 import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 
 HOST_NAME = sys.argv[1]
@@ -28,14 +31,22 @@ def is_int(s):
 
 def send_email(to, subject, body):
 
-    msg = Parser().parsestr('From: <github_notifications@lists.prplfoundation.org>\n' +
-        'To: <'+ to + '>\n' +
-        'Subject: '+ subject + '\n' +
-        '\n' +
-        '' + body + '\n')
+    subject.replace('\n', '  ')
+    subject.replace('\r', '  ')
+    to.replace('\n', '  ')
+    to.replace('\r', '  ')
+    outer = MIMEMultipart()
+    outer['Subject'] = subject
+    outer['To'] = to
+    outer['From'] = 'github_notifications@lists.prplfoundation.org'
+    outer['Date'] = email.utils.formatdate(localtime = True)
+    outer.preamble = 'GitHub notification mails are now in MIME to allow UTF8.\n'
+    outer.attach(MIMEText(body, 'plain', 'utf8'))
+    msg = outer.as_string()
+    
     if not DEBUG:
         s = smtplib.SMTP('localhost')
-        s.sendmail('github_notifications@lists.prplfoundation.org', [to], msg.as_string())
+        s.sendmail('github_notifications@lists.prplfoundation.org', [to], msg)
         s.quit()
     else:
         print msg
